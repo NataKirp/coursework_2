@@ -14,12 +14,12 @@ class APIAdapter(ABC):
         pass
 
     @abstractmethod
-    def get_aeroplanes(self, country: str) -> None:
+    def get_airplanes(self, country: str) -> None:
         """Абстрактный метод для получения информации о самолетах"""
         pass
 
 
-class AeroplanesAPI(APIAdapter):
+class AirplanesAPI(APIAdapter):
     """Класс для получения данных о полетах с сервисов nominatim.openstreetmap.org и opensky-network.org."""
 
     def __init__(self) -> None:
@@ -53,10 +53,9 @@ class AeroplanesAPI(APIAdapter):
 
         if not data:
             print(f'Страна {country} не найдена')
-
         return data[0].get('boundingbox')
 
-    def filter_aeroplanes(self, geo_coordinates: list) -> dict:
+    def filter_airplanes(self, geo_coordinates: list) -> dict:
         """Метод подключения к API для получения данных о самолетах, находящихся в заданных координатах"""
         # параметры для фильтрации самолетов по их географическим координатам.
         params_opensky = {
@@ -68,12 +67,7 @@ class AeroplanesAPI(APIAdapter):
         response_opensky = self._connect_to_api(self.__opensky_url, params_opensky, None)
         return response_opensky.json()
 
-    def get_aeroplanes(self, country: str) -> None:
+    def get_airplanes(self, country: str) -> None:
         """Метод получения данных о самолетах, находящихся в воздушном пространстве страны"""
         country_coordinates = self.get_geo_coordinates(country)
-        self.aeroplanes = self.filter_aeroplanes(list(country_coordinates))
-
-# if __name__ == '__main__':
-#     api = AeroplanesAPI()
-#     api.get_aeroplanes('Canada')
-#     print(api.aeroplanes)
+        self.airplanes = self.filter_airplanes(list(country_coordinates))
