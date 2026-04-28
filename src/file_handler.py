@@ -1,6 +1,6 @@
+import json
 import os.path
 from abc import ABC, abstractmethod
-import json
 from json import JSONDecodeError
 
 import config
@@ -17,11 +17,11 @@ class FileHandler(ABC):
 
     @abstractmethod
     def get_airplanes(self, criteria: dict) -> list:
-        """Получает данные о самолетах из файла по указанным критериям"""
+        """Получает данные о самолетах из файла по указанным критериям."""
         pass
 
     @abstractmethod
-    def delete_airplane(self, icao24: str) -> None:
+    def delete_airplane(self, icao24: str) -> bool:
         """Удаляет данные о самолете из файла по ID борта."""
         pass
 
@@ -42,14 +42,14 @@ class JSONSaver(FileHandler):
     def _read_file(self) -> list:
         """Внутренний метод для чтения данных."""
         try:
-            with open(self.__filename, 'r', encoding='utf-8') as f:
+            with open(self.__filename, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (JSONDecodeError, FileNotFoundError):
             return []
 
     def _save_file(self, data: list):
         """Внутренний метод для записи данных."""
-        with open(self.__filename, 'w', encoding='utf-8') as f:
+        with open(self.__filename, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
     def add_airplane(self, plane: Airplane) -> None:
@@ -57,7 +57,7 @@ class JSONSaver(FileHandler):
         data = self._read_file()
         # ищем индекс самолета с таким же icao24 и меняем данные, если есть (на случай, когда изменилась высота и т.п.)
         for index, item in enumerate(data):
-            if item.get('icao24') == plane.icao24:
+            if item.get("icao24") == plane.icao24:
                 data[index] = plane.to_dict()
                 self._save_file(data)
                 return
@@ -79,13 +79,16 @@ class JSONSaver(FileHandler):
                     if item_value not in value:
                         match = False
                         break
-                elif isinstance(value, tuple) and len(
-                        value) == 2:  # проверка, если передан диапазон (кортеж из 2 чисел)
+                elif (
+                    isinstance(value, tuple) and len(value) == 2
+                ):  # проверка, если передан диапазон (кортеж из 2 чисел)
                     if not (value[0] <= item_value <= value[1]):
                         match = False
                         break
                 else:
-                    if item_value != value:  # проверка, если передана строка или число (строгое совпадение)
+                    if (
+                        item_value != value
+                    ):  # проверка, если передана строка или число (строгое совпадение)
                         match = False
                         break
             if match:
@@ -96,11 +99,12 @@ class JSONSaver(FileHandler):
         """Удаляет самолет по его icao24."""
         data = self._read_file()
         initial_length = len(data)
-        new_data = [item for item in data if item.get('icao24') != icao24]
+        new_data = [item for item in data if item.get("icao24") != icao24]
 
         self._save_file(new_data)
 
         return len(new_data) < initial_length
 
     def clear_airplanes(self):
+        """Удаляет все данные из файла."""
         self._save_file([])

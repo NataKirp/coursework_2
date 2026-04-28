@@ -5,8 +5,7 @@ from src.api import AirplanesAPI
 from src.airplane import Airplane
 from src.file_handler import JSONSaver
 from src.user_input import get_valid_int, get_valid_altitude_range, get_valid_countries
-from src.utils import sort_airplanes, get_top_airplanes, print_airplanes, \
-    handle_results, filter_airplanes, get_top_by_altitude
+from src.utils import handle_results, filter_airplanes, get_top_by_altitude
 
 
 def user_interaction():
